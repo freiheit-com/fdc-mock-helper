@@ -1,0 +1,32 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins { id "com.github.ethankhall.semantic-versioning" version "1.1.0" }
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+project.version.with { major = 0; minor= 1; patch = 0; releaseBuild = true}
+
+sourceCompatibility = 1.7
+
+dependencies {
+    compile fileTree( dir: 'lib/runtime', include: '*.jar' )
+    testCompile fileTree( dir: 'lib/test', include: '*.jar' )
+}
+
+jar {
+    manifest {
+        attributes 'Version': version.toString()
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+test {
+    useJUnit()
+}
+
+task wrapper(type: Wrapper) { gradleVersion = '2.5' }

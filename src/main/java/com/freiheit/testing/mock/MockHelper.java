@@ -31,10 +31,11 @@ public class MockHelper {
      * constructor (the one with the most arguments). If there are two or more
      * constructors with the same argument count, it is unspecified which one is
      * used.
+     * 
+     * Throws a {@link RuntimeException} if the creation of the instance via reflection fails.
      */
     @Nonnull
-    public static <T> T newInstanceMockDependencies( @Nonnull final Class<T> clazz, @Nonnull final Object... mocks )
-        throws InstantiationException, IllegalAccessException, InvocationTargetException {
+    public static <T> T newInstanceMockDependencies( @Nonnull final Class<T> clazz, @Nonnull final Object... mocks ) {
 
         if ( clazz.getDeclaredConstructors().length == 0 ) {
             throw new IllegalArgumentException( String.format( "class %s has no accessible constructor", clazz.getName() ) );
@@ -59,7 +60,11 @@ public class MockHelper {
             throw new IllegalArgumentException( "At least one supplied mock wasn't used, maybe the class dependencies changed?" );
         }
 
-        return clazz.cast( cons.newInstance( actualParams.toArray() ) );
+        try {
+			return clazz.cast( cons.newInstance( actualParams.toArray() ) );
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
     }
 
     @CheckForNull

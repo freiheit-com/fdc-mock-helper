@@ -29,4 +29,4 @@ test {
     useJUnit()
 }
 
-task wrapper(type: Wrapper) { gradleVersion = '2.5' }
+task wrapper(type: Wrapper) { gradleVersion = '2.10' }

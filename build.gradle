@@ -1,10 +1,22 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.0.0"
+    }
+}
+
 import org.apache.tools.ant.filters.ReplaceTokens
 
 plugins { id "com.github.ethankhall.semantic-versioning" version "1.1.0" }
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+apply plugin: "com.jfrog.artifactory"
 
+project.group 'com.freiheit'
 project.version.with { major = 1; minor= 0; patch = 0; releaseBuild = true}
 
 sourceCompatibility = 1.7
@@ -36,3 +48,31 @@ test {
 }
 
 task wrapper(type: Wrapper) { gradleVersion = '2.10' }
+
+publishing {
+    publications {
+        artifactory( MavenPublication ) {
+            artifact jar
+            artifact sourcesJar
+        }
+    }
+}
+
+artifactory {
+    contextUrl = artifactoryURL   //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+        //A closure defining publishing information
+        repository {
+            repoKey = 'libs-releases'   //The Artifactory repository key to publish to
+            username = artifactoryUser          //The publisher user name, should be defined in ~/.gradle/gradle.properties
+            password = artifactoryPassword       //The publisher password, should be defined in ~/.gradle/gradle.properties
+            maven = true
+        }
+        defaults {
+            publishArtifacts = true
+            publications('artifactory')
+            publishPom = true //Publish generated POM files to Artifactory (true by default)
+            publishIvy = false //Publish generated Ivy descriptor files to Artifactory (true by default)
+        }
+    }
+}
